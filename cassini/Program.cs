@@ -1,4 +1,5 @@
 using cassini.EF;
+using cassini.Middleware;
 using cassini.Services;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +16,9 @@ builder.Services.AddDbContext<CassiniDbContext>(options =>
 // Register repository
 builder.Services.AddScoped<IMasterPlanRepository, MasterPlanRepository>();
 
+// Register MCP services
+builder.Services.AddSingleton<IMcpToolRegistry, McpToolRegistry>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -22,6 +26,9 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+// Add MCP middleware
+app.UseMiddleware<McpMiddleware>();
 
 app.UseHttpsRedirection();
 
