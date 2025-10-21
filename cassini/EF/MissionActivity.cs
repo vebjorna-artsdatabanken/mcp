@@ -4,9 +4,9 @@ using System.Collections.Generic;
 namespace cassini.EF;
 
 /// <summary>
-/// Represents a Cassini mission master plan observation entry
+/// Represents a Cassini mission activity observation entry
 /// </summary>
-public partial class MasterPlan
+public partial class MissionActivity
 {
     /// <summary>
     /// Primary key identifier

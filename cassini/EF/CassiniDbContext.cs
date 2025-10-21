@@ -26,9 +26,9 @@ public partial class CassiniDbContext : DbContext
     }
 
     /// <summary>
-    /// Gets or sets the master plan observations
+    /// Gets or sets the mission activity observations
     /// </summary>
-    public virtual DbSet<MasterPlan> MasterPlans { get; set; }
+    public virtual DbSet<MissionActivity> MissionActivities { get; set; }
 
     /// <summary>
     /// Configures the database connection
@@ -49,7 +49,7 @@ public partial class CassiniDbContext : DbContext
     /// <param name="modelBuilder">Model builder for entity configuration</param>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<MasterPlan>(entity =>
+        modelBuilder.Entity<MissionActivity>(entity =>
         {
             entity.ToTable("master_plan");
 

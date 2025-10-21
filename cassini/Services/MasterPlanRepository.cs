@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 namespace cassini.Services;
 
 /// <summary>
-/// Repository implementation for accessing Cassini master plan data
+/// Repository implementation for accessing Cassini mission activity data
 /// </summary>
 public class MasterPlanRepository : IMasterPlanRepository
 {
@@ -20,54 +20,54 @@ public class MasterPlanRepository : IMasterPlanRepository
     }
 
     /// <summary>
-    /// Retrieves all master plan entries
+    /// Retrieves all mission activity entries
     /// </summary>
-    /// <returns>Collection of all master plan entries</returns>
-    public async Task<IEnumerable<MasterPlan>> GetAllAsync()
+    /// <returns>Collection of all mission activity entries</returns>
+    public async Task<IEnumerable<MissionActivity>> GetAllAsync()
     {
-        return await _context.MasterPlans.ToListAsync();
+        return await _context.MissionActivities.ToListAsync();
     }
 
     /// <summary>
-    /// Retrieves a master plan entry by its ID
+    /// Retrieves a mission activity entry by its ID
     /// </summary>
     /// <param name="id">The entry ID</param>
-    /// <returns>Master plan entry or null if not found</returns>
-    public async Task<MasterPlan?> GetByIdAsync(int id)
+    /// <returns>Mission activity entry or null if not found</returns>
+    public async Task<MissionActivity?> GetByIdAsync(int id)
     {
-        return await _context.MasterPlans.FindAsync(id);
+        return await _context.MissionActivities.FindAsync(id);
     }
 
     /// <summary>
-    /// Retrieves master plan entries by team
+    /// Retrieves mission activity entries by team
     /// </summary>
     /// <param name="team">Team identifier</param>
-    /// <returns>Collection of matching master plan entries</returns>
-    public async Task<IEnumerable<MasterPlan>> GetByTeamAsync(string team)
+    /// <returns>Collection of matching mission activity entries</returns>
+    public async Task<IEnumerable<MissionActivity>> GetByTeamAsync(string team)
     {
-        return await _context.MasterPlans
+        return await _context.MissionActivities
             .Where(mp => mp.Team == team)
             .ToListAsync();
     }
 
     /// <summary>
-    /// Retrieves master plan entries by target
+    /// Retrieves mission activity entries by target
     /// </summary>
     /// <param name="target">Observation target</param>
-    /// <returns>Collection of matching master plan entries</returns>
-    public async Task<IEnumerable<MasterPlan>> GetByTargetAsync(string target)
+    /// <returns>Collection of matching mission activity entries</returns>
+    public async Task<IEnumerable<MissionActivity>> GetByTargetAsync(string target)
     {
-        return await _context.MasterPlans
+        return await _context.MissionActivities
             .Where(mp => mp.Target == target)
             .ToListAsync();
     }
 
     /// <summary>
-    /// Retrieves the total count of master plan entries
+    /// Retrieves the total count of mission activity entries
     /// </summary>
     /// <returns>Total count</returns>
     public async Task<int> GetCountAsync()
     {
-        return await _context.MasterPlans.CountAsync();
+        return await _context.MissionActivities.CountAsync();
     }
 }
