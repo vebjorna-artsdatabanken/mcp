@@ -1,5 +1,7 @@
 .DS_Store
+/Data
 # Build results
+
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/

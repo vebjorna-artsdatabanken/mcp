@@ -196,18 +196,3 @@ public class UserService
 	}
 }
 ```
-
-## 🔒 Immutability
-
-- Use init-only properties for immutable data
-- Make classes sealed by default
-- Use record types for DTOs
-```csharp
-public sealed record UserDto(int Id, string Name, string Email);
-
-public sealed class Configuration
-{
-	public string ApiKey { get; init; } = string.Empty;
-	public string BaseUrl { get; init; } = string.Empty;
-}
-```
