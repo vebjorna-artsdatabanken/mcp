@@ -23,36 +23,51 @@ builder.Services.AddSingleton<IMcpToolRegistry, McpToolRegistry>();
 var app = builder.Build();
 
 // Register MCP tools
-using (var scope = app.Services.CreateScope())
-{
-    var toolRegistry = scope.ServiceProvider.GetRequiredService<IMcpToolRegistry>();
-    var repository = scope.ServiceProvider.GetRequiredService<IMasterPlanRepository>();
-    var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
+var toolRegistry = app.Services.GetRequiredService<IMcpToolRegistry>();
 
-    // Register timerange query tool
-    var timerangeTool = new QueryObservationsByTimerangeTool(
-        repository,
-        loggerFactory.CreateLogger<QueryObservationsByTimerangeTool>());
-    toolRegistry.RegisterTool(timerangeTool.GetToolDefinition(), timerangeTool.ExecuteAsync);
+// Register timerange query tool
+toolRegistry.RegisterTool(
+    new QueryObservationsByTimerangeTool(null!, null!).GetToolDefinition(),
+    async (serviceProvider, arguments) =>
+    {
+        var repository = serviceProvider.GetRequiredService<IMasterPlanRepository>();
+        var logger = serviceProvider.GetRequiredService<ILogger<QueryObservationsByTimerangeTool>>();
+        var tool = new QueryObservationsByTimerangeTool(repository, logger);
+        return await tool.ExecuteAsync(arguments);
+    });
 
-    // Register team query tool
-    var teamTool = new QueryObservationsByTeamTool(
-        repository,
-        loggerFactory.CreateLogger<QueryObservationsByTeamTool>());
-    toolRegistry.RegisterTool(teamTool.GetToolDefinition(), teamTool.ExecuteAsync);
+// Register team query tool
+toolRegistry.RegisterTool(
+    new QueryObservationsByTeamTool(null!, null!).GetToolDefinition(),
+    async (serviceProvider, arguments) =>
+    {
+        var repository = serviceProvider.GetRequiredService<IMasterPlanRepository>();
+        var logger = serviceProvider.GetRequiredService<ILogger<QueryObservationsByTeamTool>>();
+        var tool = new QueryObservationsByTeamTool(repository, logger);
+        return await tool.ExecuteAsync(arguments);
+    });
 
-    // Register target query tool
-    var targetTool = new QueryObservationsByTargetTool(
-        repository,
-        loggerFactory.CreateLogger<QueryObservationsByTargetTool>());
-    toolRegistry.RegisterTool(targetTool.GetToolDefinition(), targetTool.ExecuteAsync);
+// Register target query tool
+toolRegistry.RegisterTool(
+    new QueryObservationsByTargetTool(null!, null!).GetToolDefinition(),
+    async (serviceProvider, arguments) =>
+    {
+        var repository = serviceProvider.GetRequiredService<IMasterPlanRepository>();
+        var logger = serviceProvider.GetRequiredService<ILogger<QueryObservationsByTargetTool>>();
+        var tool = new QueryObservationsByTargetTool(repository, logger);
+        return await tool.ExecuteAsync(arguments);
+    });
 
-    // Register observation details tool
-    var detailsTool = new GetObservationDetailsTool(
-        repository,
-        loggerFactory.CreateLogger<GetObservationDetailsTool>());
-    toolRegistry.RegisterTool(detailsTool.GetToolDefinition(), detailsTool.ExecuteAsync);
-}
+// Register observation details tool
+toolRegistry.RegisterTool(
+    new GetObservationDetailsTool(null!, null!).GetToolDefinition(),
+    async (serviceProvider, arguments) =>
+    {
+        var repository = serviceProvider.GetRequiredService<IMasterPlanRepository>();
+        var logger = serviceProvider.GetRequiredService<ILogger<GetObservationDetailsTool>>();
+        var tool = new GetObservationDetailsTool(repository, logger);
+        return await tool.ExecuteAsync(arguments);
+    });
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

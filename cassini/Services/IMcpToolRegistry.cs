@@ -11,8 +11,8 @@ public interface IMcpToolRegistry
     /// Registers a new tool in the registry.
     /// </summary>
     /// <param name="tool">Tool definition.</param>
-    /// <param name="handler">Function to execute when the tool is called.</param>
-    void RegisterTool(McpTool tool, Func<Dictionary<string, object>, Task<McpToolResult>> handler);
+    /// <param name="handler">Function to execute when the tool is called. Receives service provider and arguments.</param>
+    void RegisterTool(McpTool tool, Func<IServiceProvider, Dictionary<string, object>, Task<McpToolResult>> handler);
 
     /// <summary>
     /// Gets all registered tools.
@@ -23,11 +23,12 @@ public interface IMcpToolRegistry
     /// <summary>
     /// Executes a tool by name with the provided arguments.
     /// </summary>
+    /// <param name="serviceProvider">Service provider for resolving dependencies.</param>
     /// <param name="toolName">Name of the tool to execute.</param>
     /// <param name="arguments">Tool arguments.</param>
     /// <returns>Tool execution result.</returns>
     /// <exception cref="KeyNotFoundException">Thrown when the tool is not found.</exception>
-    Task<McpToolResult> ExecuteToolAsync(string toolName, Dictionary<string, object> arguments);
+    Task<McpToolResult> ExecuteToolAsync(IServiceProvider serviceProvider, string toolName, Dictionary<string, object> arguments);
 
     /// <summary>
     /// Checks if a tool exists in the registry.

@@ -59,7 +59,7 @@ public class McpMiddleware
             else
             {
                 _logger.LogInformation("Processing method: {Method}", request.Method);
-                response = await ProcessRequestAsync(request, toolRegistry);
+                response = await ProcessRequestAsync(context, request, toolRegistry);
             }
         }
         catch (JsonException ex)
@@ -80,16 +80,17 @@ public class McpMiddleware
     /// <summary>
     /// Routes the request to the appropriate handler based on the method name.
     /// </summary>
+    /// <param name="context">HTTP context.</param>
     /// <param name="request">MCP request.</param>
     /// <param name="toolRegistry">Tool registry service.</param>
     /// <returns>MCP response.</returns>
-    private async Task<McpResponse> ProcessRequestAsync(McpRequest request, IMcpToolRegistry toolRegistry)
+    private async Task<McpResponse> ProcessRequestAsync(HttpContext context, McpRequest request, IMcpToolRegistry toolRegistry)
     {
         return request.Method switch
         {
             "initialize" => await HandleInitializeAsync(request),
             "tools/list" => await HandleToolsListAsync(request, toolRegistry),
-            "tools/call" => await HandleToolsCallAsync(request, toolRegistry),
+            "tools/call" => await HandleToolsCallAsync(context, request, toolRegistry),
             _ => CreateErrorResponse(request.Id, McpErrorCodes.MethodNotFound, $"Method not found: {request.Method}")
         };
     }
@@ -145,10 +146,11 @@ public class McpMiddleware
     /// <summary>
     /// Handles the tools/call method.
     /// </summary>
+    /// <param name="context">HTTP context.</param>
     /// <param name="request">MCP request.</param>
     /// <param name="toolRegistry">Tool registry service.</param>
     /// <returns>MCP response with tool execution results.</returns>
-    private async Task<McpResponse> HandleToolsCallAsync(McpRequest request, IMcpToolRegistry toolRegistry)
+    private async Task<McpResponse> HandleToolsCallAsync(HttpContext context, McpRequest request, IMcpToolRegistry toolRegistry)
     {
         try
         {
@@ -161,7 +163,9 @@ public class McpMiddleware
                 return CreateErrorResponse(request.Id, McpErrorCodes.InvalidParams, "Tool name is required");
             }
 
-            var result = await toolRegistry.ExecuteToolAsync(toolCallParams.Name, toolCallParams.Arguments);
+            // Create a scope for the tool execution to get fresh instances of scoped services
+            using var scope = context.RequestServices.CreateScope();
+            var result = await toolRegistry.ExecuteToolAsync(scope.ServiceProvider, toolCallParams.Name, toolCallParams.Arguments);
 
             return new McpResponse
             {

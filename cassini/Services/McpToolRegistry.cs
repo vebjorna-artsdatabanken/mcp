@@ -8,7 +8,7 @@ namespace cassini.Services;
 public class McpToolRegistry : IMcpToolRegistry
 {
     private readonly Dictionary<string, McpTool> _tools = new();
-    private readonly Dictionary<string, Func<Dictionary<string, object>, Task<McpToolResult>>> _handlers = new();
+    private readonly Dictionary<string, Func<IServiceProvider, Dictionary<string, object>, Task<McpToolResult>>> _handlers = new();
     private readonly ILogger<McpToolRegistry> _logger;
 
     /// <summary>
@@ -24,8 +24,8 @@ public class McpToolRegistry : IMcpToolRegistry
     /// Registers a new tool in the registry.
     /// </summary>
     /// <param name="tool">Tool definition.</param>
-    /// <param name="handler">Function to execute when the tool is called.</param>
-    public void RegisterTool(McpTool tool, Func<Dictionary<string, object>, Task<McpToolResult>> handler)
+    /// <param name="handler">Function to execute when the tool is called. Receives service provider and arguments.</param>
+    public void RegisterTool(McpTool tool, Func<IServiceProvider, Dictionary<string, object>, Task<McpToolResult>> handler)
     {
         if (string.IsNullOrEmpty(tool.Name))
         {
@@ -54,11 +54,12 @@ public class McpToolRegistry : IMcpToolRegistry
     /// <summary>
     /// Executes a tool by name with the provided arguments.
     /// </summary>
+    /// <param name="serviceProvider">Service provider for resolving dependencies.</param>
     /// <param name="toolName">Name of the tool to execute.</param>
     /// <param name="arguments">Tool arguments.</param>
     /// <returns>Tool execution result.</returns>
     /// <exception cref="KeyNotFoundException">Thrown when the tool is not found.</exception>
-    public async Task<McpToolResult> ExecuteToolAsync(string toolName, Dictionary<string, object> arguments)
+    public async Task<McpToolResult> ExecuteToolAsync(IServiceProvider serviceProvider, string toolName, Dictionary<string, object> arguments)
     {
         if (!_handlers.TryGetValue(toolName, out var handler))
         {
@@ -70,7 +71,7 @@ public class McpToolRegistry : IMcpToolRegistry
 
         try
         {
-            var result = await handler(arguments);
+            var result = await handler(serviceProvider, arguments);
             _logger.LogInformation("Tool {ToolName} executed successfully", toolName);
             return result;
         }
