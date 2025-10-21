@@ -1,6 +1,7 @@
 using cassini.EF;
 using cassini.Middleware;
 using cassini.Services;
+using cassini.Tools;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,38 @@ builder.Services.AddScoped<IMasterPlanRepository, MasterPlanRepository>();
 builder.Services.AddSingleton<IMcpToolRegistry, McpToolRegistry>();
 
 var app = builder.Build();
+
+// Register MCP tools
+using (var scope = app.Services.CreateScope())
+{
+    var toolRegistry = scope.ServiceProvider.GetRequiredService<IMcpToolRegistry>();
+    var repository = scope.ServiceProvider.GetRequiredService<IMasterPlanRepository>();
+    var loggerFactory = scope.ServiceProvider.GetRequiredService<ILoggerFactory>();
+
+    // Register timerange query tool
+    var timerangeTool = new QueryObservationsByTimerangeTool(
+        repository,
+        loggerFactory.CreateLogger<QueryObservationsByTimerangeTool>());
+    toolRegistry.RegisterTool(timerangeTool.GetToolDefinition(), timerangeTool.ExecuteAsync);
+
+    // Register team query tool
+    var teamTool = new QueryObservationsByTeamTool(
+        repository,
+        loggerFactory.CreateLogger<QueryObservationsByTeamTool>());
+    toolRegistry.RegisterTool(teamTool.GetToolDefinition(), teamTool.ExecuteAsync);
+
+    // Register target query tool
+    var targetTool = new QueryObservationsByTargetTool(
+        repository,
+        loggerFactory.CreateLogger<QueryObservationsByTargetTool>());
+    toolRegistry.RegisterTool(targetTool.GetToolDefinition(), targetTool.ExecuteAsync);
+
+    // Register observation details tool
+    var detailsTool = new GetObservationDetailsTool(
+        repository,
+        loggerFactory.CreateLogger<GetObservationDetailsTool>());
+    toolRegistry.RegisterTool(detailsTool.GetToolDefinition(), detailsTool.ExecuteAsync);
+}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
