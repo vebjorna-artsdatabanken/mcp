@@ -1,8 +1,19 @@
+using cassini.EF;
+using cassini.Services;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+// Configure database context
+builder.Services.AddDbContext<CassiniDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("CassiniDatabase")));
+
+// Register repository
+builder.Services.AddScoped<IMasterPlanRepository, MasterPlanRepository>();
 
 var app = builder.Build();
 
@@ -32,6 +43,29 @@ app.MapGet("/weatherforecast", () =>
     return forecast;
 })
 .WithName("GetWeatherForecast");
+
+// Test endpoint to verify database connectivity
+app.MapGet("/api/test/db", async (IMasterPlanRepository repository) =>
+{
+    try
+    {
+        var count = await repository.GetCountAsync();
+        return Results.Ok(new
+        {
+            Status = "Connected",
+            TotalRecords = count,
+            Message = "Database connection successful"
+        });
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(
+            detail: ex.Message,
+            title: "Database connection failed"
+        );
+    }
+})
+.WithName("TestDatabaseConnection");
 
 app.Run();
 
